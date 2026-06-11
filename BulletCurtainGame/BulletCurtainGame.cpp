@@ -12,7 +12,7 @@
 
 
 //常量宏
-#define SCREEN_WIDTH 400
+#define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 800
 
 #define PLANE_SIZE 50
@@ -49,14 +49,35 @@ static time_t startTime, endTime;
 IMAGE img[10];
 int score;
 
+void coverage();
+void initGame();
+void pastePictures();
 
 int main()
 {
-	loadimage(&img[0], "background.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-	loadimage(&img[1], "enemy.png", PLANE_SIZE, PLANE_SIZE);
-	loadimage(&img[2], "player.png", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[0], "../图片素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	loadimage(&img[2], "../图片素材/魂魄妖梦.png", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[3], "../图片素材/博丽灵梦.png", PLANE_SIZE, PLANE_SIZE);
+
+	coverage();
 	initGame();
-    printf("Hello World!\n");
+	pastePictures();
+	
+}
+
+void coverage()
+{
+	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);
+	BeginBatchDraw();
+	putimage(0, 0, &img[0]);
+	settextstyle(30, 0, "微软雅黑");
+	int width = textwidth("按任意键开始游戏");
+	settextcolor(WHITE);
+	setbkmode(TRANSPARENT);
+	outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 100, "按任意键开始游戏");
+	EndBatchDraw();
+	_getch();
 }
 
 void initGame()
@@ -65,20 +86,20 @@ void initGame()
 	score = 0;//初始化分数
 	srand((unsigned)time(NULL));
 	player.bulletExistedCount = 0;//初始化玩家子弹数量
-	initPlayerBulletKineticstate();//初始化子弹运动状态
+	for (int i = 0;i < 10;i++)player.planeBullet[i] = { 0,0,0,3 };//初始化子弹运动状态
 	player.planeState = { SCREEN_WIDTH / 2 - PLANE_SIZE / 2, SCREEN_HEIGHT - PLANE_SIZE, 0, 0 };
 	enemyExistedCount = 0;
 	startTime = time(NULL);
 }
 
-
-void initPlayerBulletKineticstate()
+void pastePictures()
 {
-	double v;
-	srand((unsigned)time(NULL));
-	v = rand() / RAND_MAX + 3;
-	player.planeBullet->vy;
+	BeginBatchDraw();
+	putimage(0, 0, &img[1]);
+	
 
+
+	EndBatchDraw();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
