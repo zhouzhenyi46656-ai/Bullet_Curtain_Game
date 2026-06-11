@@ -74,3 +74,6 @@ Testing
 *.user
 *.userosscache
 *.sln.docstates
+
+Debug/
+**/x64/

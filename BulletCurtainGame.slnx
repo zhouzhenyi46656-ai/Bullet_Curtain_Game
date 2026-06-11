@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BulletCurtainGame/BulletCurtainGame.vcxproj" Id="940d25ad-797c-4c3d-8438-6ee95104e266" />
+</Solution>
