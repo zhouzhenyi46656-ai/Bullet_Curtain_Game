@@ -6,22 +6,12 @@
 #include <conio.h>
 //图形界面库
 #include <easyx.h>
+#include <graphics.h>
 //Windows API
 #include <Windows.h>
 #pragma comment(lib,"Winmm.lib")//链接多媒体库
-
-
-//常量宏
-#define SCREEN_WIDTH 600
-#define SCREEN_HEIGHT 800
-
-#define PLANE_SIZE 50
-
-#define ENEMY_NUM 8
-
-#define ENEMY_GEN_INTERVAL 1.0
-
-#define BULLET_NUM 10
+//自定义头文件
+#include "BulletCurtainGame.h"
 
 
 //定义物体运动状态结构体和飞机结构体
@@ -38,6 +28,7 @@ typedef struct plane
 	KINESTATE planeState;
 	KINESTATE planeBullet[BULLET_NUM];
 	int bulletExistedCount;
+	int HP;
 }PLANE;
 
 
@@ -47,42 +38,58 @@ PLANE enemy[ENEMY_NUM];
 int enemyExistedCount;
 static time_t startTime, endTime;
 IMAGE img[10];
+ExMessage msg;
 int score;
 
+
+//文件函数声明
 void coverage();
 void initGame();
 void pastePictures();
+void updateGame();
+
 
 int main()
 {
 	loadimage(&img[0], "../图片素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
 	loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-	loadimage(&img[2], "../图片素材/魂魄妖梦.png", PLANE_SIZE, PLANE_SIZE);
-	loadimage(&img[3], "../图片素材/博丽灵梦.png", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[2], "../图片素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[3], "../图片素材/博丽灵梦_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[4], "../图片素材/蕾米莉亚_src.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[5], "../图片素材/蕾米莉亚_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[6], "../图片素材/子弹.png", BULLET_SIZE, BULLET_SIZE);
 
 	coverage();
+	while (1) {
+   		msg = getmessage(EX_KEY);
+ 		if (msg.message == WM_KEYDOWN)break;
+	}
+
 	initGame();
 	pastePictures();
 	
+	while (1) {
+		msg = getmessage(EX_KEY);
+		if (msg.message == WM_KEYDOWN)break;
+	}
 }
 
 void coverage()
 {
-	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);
+	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
 	BeginBatchDraw();
+	setbkcolor(BLACK);//设置底色
 	putimage(0, 0, &img[0]);
 	settextstyle(30, 0, "微软雅黑");
 	int width = textwidth("按任意键开始游戏");
 	settextcolor(WHITE);
-	setbkmode(TRANSPARENT);
+	setbkmode(TRANSPARENT);//设置文字背景
 	outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 100, "按任意键开始游戏");
 	EndBatchDraw();
-	_getch();
 }
 
 void initGame()
 {
-	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
 	score = 0;//初始化分数
 	srand((unsigned)time(NULL));
 	player.bulletExistedCount = 0;//初始化玩家子弹数量
@@ -95,10 +102,21 @@ void initGame()
 void pastePictures()
 {
 	BeginBatchDraw();
+	cleardevice();
 	putimage(0, 0, &img[1]);
-	
-
-
+	putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[3] ,SRCAND );
+	putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[2], SRCPAINT );
+	for (int i = 0;i < ENEMY_NUM;i++) {
+		putimage(enemy[i].planeState.x - PLANE_SIZE / 2, enemy[i].planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
+		putimage(enemy[i].planeState.x - PLANE_SIZE / 2, enemy[i].planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
+	}
+	for (int i = 0;i < player.bulletExistedCount;i++) {
+		putimage(player.planeBullet[i].x - BULLET_SIZE/2, player.planeBullet[i].y - BULLET_SIZE/2, &img[4]);
+	}
+	RECT scoreRect = { 0, PLANE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT };
+	char str[20];
+	sprintf_s(str, "分数：%d", score);
+	drawtext(str, &scoreRect, DT_TOP | DT_CENTER );
 	EndBatchDraw();
 }
 

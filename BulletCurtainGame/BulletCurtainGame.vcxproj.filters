@@ -18,5 +18,16 @@
     <ClCompile Include="BulletCurtainGame.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="周真意\Destroy.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="钟运圣\UpdateGame.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BulletCurtainGame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
