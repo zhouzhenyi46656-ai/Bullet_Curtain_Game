@@ -144,8 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BulletCurtainGame.cpp" />
-    <ClCompile Include="周真意\Destroy.cpp" />
-    <ClCompile Include="钟运圣\UpdateGame.cpp" />
+    <ClCompile Include="UpdateGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BulletCurtainGame.h" />

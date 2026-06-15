@@ -15,18 +15,18 @@
 #include "BulletCurtainGame.h"
 
 
-
 //定义全局变量
 PLANE player;
 PLANE enemy[ENEMY_NUM];
 int enemyExistedCount;
-static time_t startTime, endTime;
+time_t startTime, endTime;
 IMAGE img[10];
 ExMessage msg;
 int score;
 bool gameRunning = true;
 bool gameStarted = false;   
 int selectedCharacter = 0;  
+
 
 //文件函数声明
 void coverage();
@@ -37,14 +37,17 @@ void updateGame();
 
 int main()
 {
+	startTime = time(NULL);
+
 	loadimage(&img[0], "../图片素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
 	loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
 	loadimage(&img[2], "../图片素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
 	loadimage(&img[3], "../图片素材/博丽灵梦_mask.bmp", PLANE_SIZE, PLANE_SIZE);
 	loadimage(&img[4], "../图片素材/魔雨雾理沙_src.bmp", PLANE_SIZE, PLANE_SIZE);
 	loadimage(&img[5], "../图片素材/魔雨雾理沙_mask.bmp", PLANE_SIZE, PLANE_SIZE);
-	loadimage(&img[6], "../图片素材/子弹.png", BULLET_SIZE, BULLET_SIZE);
-    
+	loadimage(&img[6], "../图片素材/子弹_品红_src.bmp", BULLET_SIZE, BULLET_SIZE);
+    loadimage(&img[7], "../图片素材/子弹_mask.bmp", BULLET_SIZE, BULLET_SIZE);
+
     initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
     setbkcolor(BLACK);//设置底色
     settextstyle(30, 0, "微软雅黑");//设置文字样式
@@ -119,10 +122,10 @@ void pastePictures()
             highlightX + PLANE_SIZE / 2 + 5, y + PLANE_SIZE / 2 + 5);
 
         // 提示文字
-        settextstyle(20, 0, "微软雅黑");
-        settextcolor(WHITE);
-        outtextxy(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, "← 博丽灵梦   魔雨雾理沙 →");
-        outtextxy(SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT - 60, "按空格/回车开始游戏");
+        RECT tipRect_1 = { 0, SCREEN_HEIGHT - 160, SCREEN_WIDTH, SCREEN_HEIGHT },
+			 tipRect_2 = { 0, SCREEN_HEIGHT - 80, SCREEN_WIDTH, SCREEN_HEIGHT };
+        drawtext( "← 博丽灵梦   魔雨雾理沙 →", &tipRect_1, DT_TOP | DT_CENTER);
+        drawtext("按空格/回车开始游戏", &tipRect_2, DT_TOP | DT_CENTER);
     }
     // ========== 游戏阶段 ==========
     else {
@@ -149,8 +152,8 @@ void pastePictures()
 
         // 3. 绘制玩家子弹
         for (int i = 0; i < player.bulletExistedCount; i++) {
-            putimage(player.planeBullet[i].x - BULLET_SIZE / 2,
-                player.planeBullet[i].y - BULLET_SIZE / 2, &img[6]);
+            putimage(player.planeBullet[i].x - BULLET_SIZE / 2, player.planeBullet[i].y - BULLET_SIZE / 2, &img[7], SRCAND);
+            putimage(player.planeBullet[i].x - BULLET_SIZE / 2, player.planeBullet[i].y - BULLET_SIZE / 2, &img[6], SRCPAINT);
         }
     }
 
@@ -158,9 +161,6 @@ void pastePictures()
     RECT scoreRect = { 0, PLANE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT };
     char str[20];
     sprintf_s(str, "分数：%d", score);
-    settextstyle(25, 0, "微软雅黑");
-    settextcolor(WHITE);
-    setbkmode(TRANSPARENT);
     drawtext(str, &scoreRect, DT_TOP | DT_CENTER);
 
     EndBatchDraw();

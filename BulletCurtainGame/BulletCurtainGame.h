@@ -4,19 +4,22 @@
 
 #define PLANE_SIZE 50
 #define BULLET_SIZE 20
+#define BULLET_NUM 100
+#define BULLET_GEN_INTERVAL 100
 
 #define ENEMY_NUM 8
-
-#define ENEMY_GEN_INTERVAL 1.0
-
-#define BULLET_NUM 100
+#define ENEMY_GEN_INTERVAL 1000
 
 #define REFRESH_INTERVAL 16
 
+
+//全局变量声明
 extern bool gameRunning;
 extern bool gameStarted;        // false=选人界面，true=游戏中
-extern int selectedCharacter;   // 0=博丽灵梦，1=蕾米莉亚
+extern int selectedCharacter;   // 0=博丽灵梦，1=魔雨雾理沙
 
+
+//结构体声明
 #define PLAYER_SPEED 6
 typedef struct kinestate
 {
@@ -33,6 +36,7 @@ typedef struct plane
 	int bulletExistedCount;
 	int HP;
 }PLANE;
+
 
 //函数声明
 void updateGame();
