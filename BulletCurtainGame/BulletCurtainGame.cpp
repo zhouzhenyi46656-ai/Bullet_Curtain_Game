@@ -14,23 +14,6 @@
 #include "BulletCurtainGame.h"
 
 
-//定义物体运动状态结构体和飞机结构体
-typedef struct kinestate 
-{
-	int x;
-	int y;
-	int vx;
-	int vy;
-}KINESTATE;
-
-typedef struct plane
-{
-	KINESTATE planeState;
-	KINESTATE planeBullet[BULLET_NUM];
-	int bulletExistedCount;
-	int HP;
-}PLANE;
-
 
 //定义全局变量
 PLANE player;
@@ -40,7 +23,9 @@ static time_t startTime, endTime;
 IMAGE img[10];
 ExMessage msg;
 int score;
-
+bool gameRunning = true;
+bool gameStarted = false;   
+int selectedCharacter = 0;  
 
 //文件函数声明
 void coverage();
@@ -68,10 +53,12 @@ int main()
 	initGame();
 	pastePictures();
 	
-	while (1) {
-		msg = getmessage(EX_KEY);
-		if (msg.message == WM_KEYDOWN)break;
+	while (gameRunning) {
+		updateGame();   
+		Sleep(16);
 	}
+	closegraph();
+	return 0;
 }
 
 void coverage()
@@ -101,23 +88,79 @@ void initGame()
 
 void pastePictures()
 {
-	BeginBatchDraw();
-	cleardevice();
-	putimage(0, 0, &img[1]);
-	putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[3] ,SRCAND );
-	putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[2], SRCPAINT );
-	for (int i = 0;i < ENEMY_NUM;i++) {
-		putimage(enemy[i].planeState.x - PLANE_SIZE / 2, enemy[i].planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
-		putimage(enemy[i].planeState.x - PLANE_SIZE / 2, enemy[i].planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
-	}
-	for (int i = 0;i < player.bulletExistedCount;i++) {
-		putimage(player.planeBullet[i].x - BULLET_SIZE/2, player.planeBullet[i].y - BULLET_SIZE/2, &img[4]);
-	}
-	RECT scoreRect = { 0, PLANE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT };
-	char str[20];
-	sprintf_s(str, "分数：%d", score);
-	drawtext(str, &scoreRect, DT_TOP | DT_CENTER );
-	EndBatchDraw();
+    BeginBatchDraw();
+    cleardevice();
+
+    // 绘制背景
+    putimage(0, 0, &img[1]);
+
+    // ========== 选人阶段 ==========
+    if (!gameStarted) {
+        int leftX = SCREEN_WIDTH / 2 - PLANE_SIZE - 50;
+        int rightX = SCREEN_WIDTH / 2 + 50;
+        int y = SCREEN_HEIGHT / 2;
+
+        // 绘制博丽灵梦（左边）
+        putimage(leftX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[3], SRCAND);
+        putimage(leftX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[2], SRCPAINT);
+
+        // 绘制蕾米莉亚（右边）
+        putimage(rightX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[5], SRCAND);
+        putimage(rightX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[4], SRCPAINT);
+
+        // 高亮当前选中角色
+        int highlightX = (selectedCharacter == 0) ? leftX : rightX;
+        setlinecolor(YELLOW);
+        setlinestyle(PS_SOLID, 3);
+        rectangle(highlightX - PLANE_SIZE / 2 - 5, y - PLANE_SIZE / 2 - 5,
+            highlightX + PLANE_SIZE / 2 + 5, y + PLANE_SIZE / 2 + 5);
+
+        // 提示文字
+        settextstyle(20, 0, "微软雅黑");
+        settextcolor(WHITE);
+        outtextxy(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, "← 灵梦   蕾米莉亚 →");
+        outtextxy(SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT - 60, "按空格/回车开始游戏");
+    }
+    // ========== 游戏阶段 ==========
+    else {
+        // 1. 绘制玩家（根据选择的角色）
+        if (selectedCharacter == 0) {  // 博丽灵梦
+            putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[3], SRCAND);
+            putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[2], SRCPAINT);
+        }
+        else {  // 蕾米莉亚
+            putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
+            putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
+        }
+
+        // 2. 绘制敌人
+        for (int i = 0; i < ENEMY_NUM; i++) {
+            // 只绘制存在的敌人
+            if (enemy[i].HP > 0) {
+                putimage(enemy[i].planeState.x - PLANE_SIZE / 2,
+                    enemy[i].planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
+                putimage(enemy[i].planeState.x - PLANE_SIZE / 2,
+                    enemy[i].planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
+            }
+        }
+
+        // 3. 绘制玩家子弹
+        for (int i = 0; i < player.bulletExistedCount; i++) {
+            putimage(player.planeBullet[i].x - BULLET_SIZE / 2,
+                player.planeBullet[i].y - BULLET_SIZE / 2, &img[6]);
+        }
+    }
+
+    // 绘制分数
+    RECT scoreRect = { 0, PLANE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT };
+    char str[20];
+    sprintf_s(str, "分数：%d", score);
+    settextstyle(25, 0, "微软雅黑");
+    settextcolor(WHITE);
+    setbkmode(TRANSPARENT);
+    drawtext(str, &scoreRect, DT_TOP | DT_CENTER);
+
+    EndBatchDraw();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

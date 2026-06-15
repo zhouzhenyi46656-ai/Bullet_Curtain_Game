@@ -10,7 +10,26 @@
 #define ENEMY_GEN_INTERVAL 1.0
 
 #define BULLET_NUM 10
+extern bool gameRunning;
+extern bool gameStarted;        // false=选人界面，true=游戏中
+extern int selectedCharacter;   // 0=博丽灵梦，1=蕾米莉亚
 
+#define PLAYER_SPEED 6
+typedef struct kinestate
+{
+	int x;
+	int y;
+	int vx;
+	int vy;
+}KINESTATE;
+
+typedef struct plane
+{
+	KINESTATE planeState;
+	KINESTATE planeBullet[BULLET_NUM];
+	int bulletExistedCount;
+	int HP;
+}PLANE;
 
 //函数声明
 void updateGame();
