@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdbool.h>
 //按键库
 #include <conio.h>
 //图形界面库
@@ -40,12 +41,18 @@ int main()
 	loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
 	loadimage(&img[2], "../图片素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
 	loadimage(&img[3], "../图片素材/博丽灵梦_mask.bmp", PLANE_SIZE, PLANE_SIZE);
-	loadimage(&img[4], "../图片素材/蕾米莉亚_src.bmp", PLANE_SIZE, PLANE_SIZE);
-	loadimage(&img[5], "../图片素材/蕾米莉亚_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[4], "../图片素材/魔雨雾理沙_src.bmp", PLANE_SIZE, PLANE_SIZE);
+	loadimage(&img[5], "../图片素材/魔雨雾理沙_mask.bmp", PLANE_SIZE, PLANE_SIZE);
 	loadimage(&img[6], "../图片素材/子弹.png", BULLET_SIZE, BULLET_SIZE);
-
-	coverage();
-	while (1) {
+    
+    initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
+    setbkcolor(BLACK);//设置底色
+    settextstyle(30, 0, "微软雅黑");//设置文字样式
+    setbkmode(TRANSPARENT);//设置文字背景
+    settextcolor(WHITE);//设置文字颜色
+    
+    coverage();
+    while (1) {
    		msg = getmessage(EX_KEY);
  		if (msg.message == WM_KEYDOWN)break;
 	}
@@ -55,7 +62,7 @@ int main()
 	
 	while (gameRunning) {
 		updateGame();   
-		Sleep(16);
+		Sleep(REFRESH_INTERVAL);
 	}
 	closegraph();
 	return 0;
@@ -63,14 +70,10 @@ int main()
 
 void coverage()
 {
-	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
+	
 	BeginBatchDraw();
-	setbkcolor(BLACK);//设置底色
 	putimage(0, 0, &img[0]);
-	settextstyle(30, 0, "微软雅黑");
 	int width = textwidth("按任意键开始游戏");
-	settextcolor(WHITE);
-	setbkmode(TRANSPARENT);//设置文字背景
 	outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 100, "按任意键开始游戏");
 	EndBatchDraw();
 }
@@ -104,7 +107,7 @@ void pastePictures()
         putimage(leftX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[3], SRCAND);
         putimage(leftX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[2], SRCPAINT);
 
-        // 绘制蕾米莉亚（右边）
+        // 绘制魔雨雾理沙（右边）
         putimage(rightX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[5], SRCAND);
         putimage(rightX - PLANE_SIZE / 2, y - PLANE_SIZE / 2, &img[4], SRCPAINT);
 
@@ -118,7 +121,7 @@ void pastePictures()
         // 提示文字
         settextstyle(20, 0, "微软雅黑");
         settextcolor(WHITE);
-        outtextxy(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, "← 灵梦   蕾米莉亚 →");
+        outtextxy(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, "← 博丽灵梦   魔雨雾理沙 →");
         outtextxy(SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT - 60, "按空格/回车开始游戏");
     }
     // ========== 游戏阶段 ==========
@@ -128,7 +131,7 @@ void pastePictures()
             putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[3], SRCAND);
             putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[2], SRCPAINT);
         }
-        else {  // 蕾米莉亚
+        else {  // 魔雨雾理沙
             putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
             putimage(player.planeState.x - PLANE_SIZE / 2, player.planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
         }

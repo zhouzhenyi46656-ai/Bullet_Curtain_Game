@@ -9,7 +9,10 @@
 
 #define ENEMY_GEN_INTERVAL 1.0
 
-#define BULLET_NUM 10
+#define BULLET_NUM 100
+
+#define REFRESH_INTERVAL 16
+
 extern bool gameRunning;
 extern bool gameStarted;        // false=选人界面，true=游戏中
 extern int selectedCharacter;   // 0=博丽灵梦，1=蕾米莉亚

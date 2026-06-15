@@ -1,7 +1,6 @@
 #include "../BulletCurtainGame.h"
 //标准库
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
 //按键库
 #include <conio.h>
@@ -11,8 +10,7 @@
 //Windows API
 #include <Windows.h>
 #pragma comment(lib,"Winmm.lib")//链接多媒体库
-void coverage();
-void initGame();
+
 void pastePictures();
 void updateGame();
 
