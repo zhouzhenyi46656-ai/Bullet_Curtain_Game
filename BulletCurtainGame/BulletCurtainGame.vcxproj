@@ -143,6 +143,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MovementModule.cpp" />
     <ClCompile Include="BulletCurtainGame.cpp" />
     <ClCompile Include="UpdateGame.cpp" />
   </ItemGroup>
