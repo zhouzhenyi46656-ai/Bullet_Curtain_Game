@@ -11,6 +11,7 @@
 #define ENEMY_GEN_INTERVAL 1000
 
 #define REFRESH_INTERVAL 16
+#define BULLET_GEN_INTERVAL_MS 150  // 子弹发射间隔（毫秒）
 
 
 //全局变量声明
@@ -20,7 +21,7 @@ extern int selectedCharacter;   // 0=博丽灵梦，1=魔雨雾理沙
 
 
 //结构体声明
-#define PLAYER_SPEED 6
+#define PLAYER_SPEED 8
 typedef struct kinestate
 {
 	int x;
