@@ -7,6 +7,7 @@
 
 #define BOSS_SIZE 100
 #define BOSS_SPEED 4
+#define BOSS_BULLET_SPEED 4   
 
 #define BULLET_SIZE 20
 #define BULLET_NUM 100
@@ -15,6 +16,8 @@
 
 #define ENEMY_NUM 8
 #define ENEMY_GEN_INTERVAL 1000
+
+#define BOSS_BULLET_SIZE 20
 
 #define JUDGE_SCOPE 10
 
@@ -45,7 +48,7 @@ extern bool gameStarted;        // false=选人界面，true=游戏中
 extern int selectedCharacter;   // 0=博丽灵梦，1=魔雨雾理沙
 extern int score;
 extern ExMessage msg;
-extern IMAGE img[10];
+extern IMAGE img[12];
 extern PLANE player, boss;
 extern PLANE enemy[ENEMY_NUM];
 extern int enemyExistedCount;
@@ -58,6 +61,9 @@ void pastePictures();
 void bossKineticModule_0();
 void bossKineticModule_1();
 void bossKineticModule_2();
-
+// Boss弹幕函数声明
+void BossPattern_Ring(int bulletCount, double& angleOffset);
+void BossPattern_Flower(int bulletCount, double& angleOffset);
+void BossPattern_Random(double& ringAngle, double& flowerAngle);
 
 
