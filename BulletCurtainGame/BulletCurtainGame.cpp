@@ -20,7 +20,7 @@ PLANE player, boss;
 PLANE enemy[ENEMY_NUM];
 int enemyExistedCount;
 time_t startTime, endTime;
-IMAGE img[12];  // 从 10 改为 12，增加两个图片槽位
+IMAGE img[16];  
 ExMessage msg;
 int score;
 bool gameRunning = true;
@@ -34,15 +34,12 @@ void initGame();
 void initPictures();
 void updateGame();
 int selectCharacter();
-
+void checkPlayerState();
 
 int main()
 {
     //一、游戏前准备阶段
-    // 1.记录游戏开始时间
-    startTime = time(NULL);
-
-    // 2.加载游戏资源
+    // 1. 加载游戏资源
     loadimage(&img[0], "../图片素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
     loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
     loadimage(&img[2], "../图片素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
@@ -53,11 +50,14 @@ int main()
     loadimage(&img[7], "../图片素材/子弹_mask.bmp", BULLET_SIZE, BULLET_SIZE);
     loadimage(&img[8], "../图片素材/蕾米莉亚_src.bmp", BOSS_SIZE, BOSS_SIZE);
     loadimage(&img[9], "../图片素材/蕾米莉亚_mask.bmp", BOSS_SIZE, BOSS_SIZE);
-    // ===== 新增：加载 boss 子弹图片 =====
     loadimage(&img[10], "../图片素材/圆_红_src.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
     loadimage(&img[11], "../图片素材/圆_mask.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
+	loadimage(&img[12], "../图片素材/结算1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[13], "../图片素材/结算2.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[14], "../图片素材/十六夜咲夜_src.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[15], "../图片素材/十六夜咲夜_mask.bmp", PLANE_SIZE, PLANE_SIZE);
 
-    // 3.初始化游戏窗口
+    // 2.初始化游戏窗口
     initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
     setbkcolor(BLACK);//设置底色
     settextstyle(30, 0, "微软雅黑");//设置文字样式
@@ -66,35 +66,56 @@ int main()
 
 
     //二、游戏主循环阶段
-    // 1.显示封面并等待按键
-    coverage();
-    while (1) {
-        msg = getmessage(EX_KEY);
-        if (msg.message == WM_KEYDOWN)break;
-    }
+    while(1) {
+		cleardevice();
 
-    // 2.选角功能
-    while (1) {
-        initPictures();  // 显示选人界面
-        msg = getmessage(EX_KEY);
-        if (msg.message == WM_KEYDOWN && !gameStarted) {
-            if (selectCharacter())break;
-
+        // 1.显示封面并等待按键
+        coverage();
+        while (1) {
+            msg = getmessage(EX_KEY);
+            if (msg.message == WM_KEYDOWN)break;
         }
-    }
 
-    // 3.初始化游戏状态
-    initGame();
-    pastePictures();
-    Sleep(500);
+        // 2.选角功能
+        while (1) {
+            initPictures();  // 显示选人界面
+            msg = getmessage(EX_KEY);
+            if (msg.message == WM_KEYDOWN && !gameStarted) {
+                if (selectCharacter())break;
+            }
+        }
 
-    // 4.游戏主循环
-    while (gameRunning) {
-        updateGame();
-        Sleep(REFRESH_INTERVAL);
+        // 3.初始化游戏状态
+        initGame();
+        pastePictures();
+        Sleep(500);
+
+        // 4.游戏阶段
+        while (gameRunning) {
+            // 处理游戏逻辑
+            updateGame();
+            // 检查玩家生存状态
+            checkPlayerState();
+            Sleep(REFRESH_INTERVAL);
+        }
+
+		//游戏后处理阶段
+        do {
+            msg = getmessage(EX_KEY);
+        } while (msg.message != WM_KEYDOWN);
+        int restartStatus = 1;
+		do {
+			msg = getmessage(EX_KEY);
+            if (msg.message == WM_KEYDOWN && msg.vkcode == 'R') {
+                restartStatus = 0;
+				gameStarted = false;
+            }
+            else if (msg.message == WM_KEYDOWN && msg.vkcode == VK_ESCAPE) {
+                closegraph();
+                return 0;
+            }
+        } while (restartStatus);
     }
-    closegraph();
-    return 0;
 }
 
 void coverage()
@@ -102,8 +123,13 @@ void coverage()
 
     BeginBatchDraw();
     putimage(0, 0, &img[0]);
+    settextstyle(40, 0, "微软雅黑");
     int width = textwidth("按任意键开始游戏");
-    outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 100, "按任意键开始游戏");
+    outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 150, "按任意键开始游戏");
+    settextstyle(20, 0, "微软雅黑");
+	width = textwidth("素材来源于游戏《东方永夜抄》");
+    outtextxy(SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT - 80, "素材来源于游戏《东方永夜抄》");
+    settextstyle(30, 0, "微软雅黑");
     EndBatchDraw();
 }
 
@@ -135,7 +161,7 @@ void initPictures()
             highlightX + PLANE_SIZE / 2 + 5, y + PLANE_SIZE / 2 + 5);
 
         // 提示文字
-        RECT tipRect_1 = { 0, SCREEN_HEIGHT - 160, SCREEN_WIDTH, SCREEN_HEIGHT },
+        RECT tipRect_1 = { 0, SCREEN_HEIGHT - 120, SCREEN_WIDTH, SCREEN_HEIGHT },
             tipRect_2 = { 0, SCREEN_HEIGHT - 80, SCREEN_WIDTH, SCREEN_HEIGHT };
         drawtext("← 博丽灵梦   魔雨雾理沙 →", &tipRect_1, DT_TOP | DT_CENTER);
         drawtext("按空格/回车开始游戏", &tipRect_2, DT_TOP | DT_CENTER);
@@ -167,7 +193,8 @@ int selectCharacter()
 
 void initGame()
 {
-    score = 0;//初始化分数
+	gameRunning = true;   // 开始游戏
+    score = 0;  //初始化分数
     srand((unsigned)time(NULL));
 
     // ----- 初始化玩家 -----
@@ -184,7 +211,7 @@ void initGame()
         boss.planeBullet[i] = { 0, 0, 0, 0 };
     }
     boss.planeState = { SCREEN_WIDTH / 2, 100, 0, 0 };  // Boss 出现在屏幕上方
-    boss.HP = 20;  // Boss 生命值
+    boss.HP = 300;  // Boss 生命值
 
     // ----- 初始化敌人 -----
     enemyExistedCount = 0;
@@ -228,9 +255,9 @@ void pastePictures()
         // 只绘制存在的敌人
         if (enemy[i].HP > 0) {
             putimage(enemy[i].planeState.x - PLANE_SIZE / 2,
-                enemy[i].planeState.y - PLANE_SIZE / 2, &img[5], SRCAND);
+                enemy[i].planeState.y - PLANE_SIZE / 2, &img[15], SRCAND);
             putimage(enemy[i].planeState.x - PLANE_SIZE / 2,
-                enemy[i].planeState.y - PLANE_SIZE / 2, &img[4], SRCPAINT);
+                enemy[i].planeState.y - PLANE_SIZE / 2, &img[14], SRCPAINT);
         }
     }
 
@@ -249,13 +276,32 @@ void pastePictures()
             boss.planeBullet[i].y - BOSS_BULLET_SIZE / 2, &img[10], SRCPAINT); // src
     }
 
-    // 7. 绘制分数
+    // 7. 绘制分数，血量
     RECT scoreRect = { 0, PLANE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT };
-    char str[20];
-    sprintf_s(str, "分数：%d", score);
-    drawtext(str, &scoreRect, DT_TOP | DT_CENTER);
-
+    char str1[20], str2[20];
+    sprintf_s(str1, "分数：%d", score);
+    drawtext(str1, &scoreRect, DT_TOP | DT_CENTER);
+    
+    sprintf_s(str2, "HP：%d", player.HP);
+    outtextxy(20, SCREEN_HEIGHT-40, str2);
     EndBatchDraw();
+}
+
+void checkPlayerState()
+{
+    
+    if (player.HP <= 0) {
+        gameRunning = false;   // 结束游戏
+
+		BeginBatchDraw();
+		putimage(0, 0, &img[12]);
+        
+        RECT tipRect_1 = { 0 , SCREEN_HEIGHT / 2 - 30, SCREEN_WIDTH, SCREEN_HEIGHT };
+        drawtext("你被击败，游戏结束", &tipRect_1, DT_CENTER | DT_VCENTER);
+        RECT tipRect_2 = { 0 , SCREEN_HEIGHT / 2 + 30, SCREEN_WIDTH, SCREEN_HEIGHT };
+		drawtext("按 R 键重新开始，或按ESC退出程序", &tipRect_2, DT_CENTER | DT_VCENTER); 
+		EndBatchDraw();
+    }
 }
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单

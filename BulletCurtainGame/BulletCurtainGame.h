@@ -17,6 +17,7 @@
 
 #define ENEMY_NUM 8
 #define ENEMY_GEN_INTERVAL 1000
+#define ENEMY_BULLET_GEN_INTERVAL 500
 
 #define BOSS_BULLET_SIZE 20
 
@@ -40,6 +41,8 @@ typedef struct plane
 	KINESTATE planeBullet[BULLET_NUM];
 	int bulletExistedCount;
 	int HP;
+	int enemyType; // 三种运动模式
+	ULONGLONG lastBulletTime;
 }PLANE;
 
 
@@ -49,7 +52,7 @@ extern bool gameStarted;        // false=选人界面，true=游戏中
 extern int selectedCharacter;   // 0=博丽灵梦，1=魔雨雾理沙
 extern int score;
 extern ExMessage msg;
-extern IMAGE img[12];
+extern IMAGE img[16];
 extern PLANE player, boss;
 extern PLANE enemy[ENEMY_NUM];
 extern int enemyExistedCount;
@@ -59,12 +62,15 @@ extern time_t startTime, endTime;
 //函数声明
 void updateGame();
 void pastePictures();
+
 void bossKineticModule_0();
 void bossKineticModule_1();
 void bossKineticModule_2();
-// Boss弹幕函数声明
-void BossPattern_Ring(int bulletCount, double& angleOffset);
+void BossPattern_Ring(PLANE* plane, int bulletCount, double& angleOffset);
 void BossPattern_Flower(int bulletCount, double& angleOffset);
 void BossPattern_Random(double& ringAngle, double& flowerAngle);
+void enemyKineticModule1();
+void enemyKineticModule2();
+void enemyKineticModule3();
 
 
