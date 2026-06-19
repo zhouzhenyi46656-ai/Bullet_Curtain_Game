@@ -10,9 +10,10 @@
 #define BOSS_BULLET_SPEED 4   
 
 #define BULLET_SIZE 20
-#define BULLET_NUM 100
+#define BULLET_NUM 1000
 #define BULLET_SPEED 25
-#define BULLET_GEN_INTERVAL 80
+#define BULLET_GEN_INTERVAL 100
+#define BULLET_GEN_BOSS_INTERVAL 50
 
 #define ENEMY_NUM 8
 #define ENEMY_GEN_INTERVAL 1000
@@ -27,10 +28,10 @@
 //结构体声明
 typedef struct kinestate
 {
-	int x;
-	int y;
-	int vx;
-	int vy;
+	double x;
+	double y;
+	double vx;
+	double vy;
 }KINESTATE;
 
 typedef struct plane

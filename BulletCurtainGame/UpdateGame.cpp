@@ -95,24 +95,21 @@ void updateGame()
     //Boss 弹幕发射（根据分数选择不同模式）
  
     ULONGLONG now = GetTickCount();
-    int bossBulletInterval = 100;  // 毫秒，控制Boss射速
 
-    if (now - lastBossBulletTime > bossBulletInterval) {
+    // 根据分数选择弹幕模式
+    if (score >= 0 && score < 100 && now - lastBossBulletTime > BULLET_GEN_BOSS_INTERVAL) {lastBossBulletTime = now;
+        // 模式1：花瓣弹幕（分数 0-100）
+        BossPattern_Flower(1, flowerAngle);
+    }
+    else if (score >= 100 && score < 200 && now - lastBossBulletTime > BULLET_GEN_BOSS_INTERVAL*10) {
         lastBossBulletTime = now;
-
-        // 根据分数选择弹幕模式
-        if (score >= 0 && score < 100) {
-            // 模式1：环形弹幕（分数 0-100）
-            BossPattern_Ring(16, ringAngle);
-        }
-        else if (score >= 100 && score < 200) {
-            // 模式2：花瓣弹幕（分数 100-200）
-            BossPattern_Flower(1, flowerAngle);
-        }
-        else if (score >= 200) {
-            // 模式3：随机混合（分数 200+）
-            BossPattern_Random(ringAngle, flowerAngle);
-        }
+        // 模式2：环形弹幕（分数 100-200）
+        BossPattern_Ring(32, ringAngle);
+    }
+    else if (score >= 200 && now - lastBossBulletTime > BULLET_GEN_BOSS_INTERVAL) {
+        lastBossBulletTime = now;
+        // 模式3：随机混合（分数 200+）
+        BossPattern_Random(ringAngle, flowerAngle);
     }
 
     // 四. 检测碰撞和越界
@@ -162,7 +159,7 @@ void updateGame()
     //检查敌人子弹与玩家碰撞
     //检查boss子弹与玩家碰撞
     for (int i = 0;i < boss.bulletExistedCount;i++) {
-        if (areIntersecting(boss.planeBullet[i], JUDGE_SCOPE, player.planeState, JUDGE_SCOPE)) {
+        if (areIntersecting(boss.planeBullet[i], JUDGE_SCOPE, player.planeState, JUDGE_SCOPE/2)) {
             boss.planeBullet[i] = boss.planeBullet[boss.bulletExistedCount - 1];
             boss.bulletExistedCount--;
             i--;

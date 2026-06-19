@@ -83,8 +83,8 @@ void BossPattern_Ring(int bulletCount, double& angleOffset)
 
         // 计算子弹速度方向
         int speed = BOSS_BULLET_SPEED;
-        int vx = (int)(speed * cos(angle));
-        int vy = (int)(speed * sin(angle));
+        double vx = speed * cos(angle);
+        double vy = speed * sin(angle);
 
         // 设置子弹位置
         int index = boss.bulletExistedCount;
@@ -121,8 +121,8 @@ void BossPattern_Flower(int bulletCount, double& angleOffset)
 
     // 计算速度
     int speed = BOSS_BULLET_SPEED;
-    int vx = (int)(speed * cos(angle));
-    int vy = (int)(speed * sin(angle));
+    double vx = speed * cos(angle);
+    double vy = speed * sin(angle);
 
     // 设置子弹位置
     boss.planeBullet[index].x = boss.planeState.x;
