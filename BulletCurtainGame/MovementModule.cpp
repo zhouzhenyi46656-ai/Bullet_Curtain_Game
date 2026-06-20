@@ -18,7 +18,6 @@
 
 // 圆周率常量
 #ifndef PI
-#define PI 3.1415926535
 #endif
 
 
@@ -131,19 +130,45 @@ void BossPattern_Flower(int bulletCount, double& angleOffset)
     boss.bulletExistedCount++;
 }
 
-// 3. 随机选择弹幕（用于200分以上）
-void BossPattern_Random(double& ringAngle, double& flowerAngle)
-{
-    // 随机选择 0 或 1
-    int choice = rand() % 2;
 
-    if (choice == 0) {
-        BossPattern_Ring(&boss, 16, ringAngle);
+void BossPattern_MultiPetal(int petalCount, double& angleOffset)
+{
+    // 如果子弹数量已满，不再发射
+    if (boss.bulletExistedCount >= BULLET_NUM) {
+        return;
     }
-    else {
-        BossPattern_Flower(1, flowerAngle);
+
+    // 在每个角度上生成一条花瓣
+    for (int p = 0; p < petalCount; p++) {
+        // 计算当前花瓣的基准角度
+        double baseAngle = (2 * PI / petalCount) * p + angleOffset;
+
+        // 每条花瓣内部连续发射多颗子弹
+        int bulletsPerPetal = 5;  
+
+        for (int i = 0; i < bulletsPerPetal; i++) {
+            // 每颗子弹在基准角度附近有微小偏移
+            double offset = (i - bulletsPerPetal / 2.0) * 0.15;  // 弧度偏移
+            double angle = baseAngle + offset;
+
+            int index = boss.bulletExistedCount;
+            int speed = BOSS_BULLET_SPEED;
+            double vx = (speed * cos(angle));
+            double vy = (speed * sin(angle));
+
+            boss.planeBullet[index].x = boss.planeState.x;
+            boss.planeBullet[index].y = boss.planeState.y;
+            boss.planeBullet[index].vx = vx;
+            boss.planeBullet[index].vy = vy;
+            boss.bulletExistedCount++;
+
+            if (boss.bulletExistedCount >= BULLET_NUM) {
+                return;
+            }
+        }
     }
 }
+
 
 
 // 三、敌人与敌人子弹移动模块

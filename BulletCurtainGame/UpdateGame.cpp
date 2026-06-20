@@ -30,7 +30,7 @@ void updateGame()
 
     // Boss 弹幕角度偏移（用于旋转效果）
     static double ringAngle = 0.0;      // 环形弹幕角度
-    static double flowerAngle = 0.0;    // 花瓣弹幕角度
+    static double flowerAngle = 20.0;    // 花瓣弹幕角度
 
     // 处理键盘输入 
     if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
@@ -180,9 +180,29 @@ void updateGame()
         BossPattern_Ring(&boss, 32, ringAngle);
     }
     // 模式3：随机混合（分数 200+）
-    else if (score >= 200 && now - lastBossBulletTime > BULLET_GEN_BOSS_INTERVAL) {
-        lastBossBulletTime = now;
-        BossPattern_Random(ringAngle, flowerAngle);
+    else if (score >= 200) {
+        static int actionTimer = 0;
+        static bool isShooting = true;
+
+        actionTimer++;
+
+        if (isShooting) {
+            if (now - lastBossBulletTime > BULLET_GEN_BOSS_INTERVAL*8) {
+                lastBossBulletTime = now;
+                BossPattern_MultiPetal(6, flowerAngle);
+            }
+
+            if (actionTimer >= SHOOT_DURATION) {
+                actionTimer = 0;
+                isShooting = false;
+            }
+        }
+        else {
+            if (actionTimer >= GAP_DURATION) {
+                actionTimer = 0;
+                isShooting = true;
+            }
+        }
     }
 
 
@@ -242,7 +262,36 @@ void updateGame()
     }
 
     // 6. 检查玩家子弹与敌人碰撞
- 
+    for (int i = 0; i < player.bulletExistedCount; i++) {
+        for (int j = 0; j < enemyExistedCount; j++) {
+            if (areIntersecting(player.planeBullet[i], JUDGE_SCOPE, enemy[j].planeState, JUDGE_SCOPE*1.5)) {
+                enemy[j].HP--;
+                player.planeBullet[i] = player.planeBullet[player.bulletExistedCount - 1];
+                player.bulletExistedCount--;
+                i--;
+
+               // 根据敌人类型增加不同分数
+                if (enemy[j].enemyType == 0) {
+                    score += 2;  // 普通敌人（HP=6）
+                }
+                else if (enemy[j].enemyType == 1) {
+                    score += 4;  // 中型敌人（HP=4）
+                }
+                else if (enemy[j].enemyType == 2) {
+                    score += 6;  // 追踪敌人（HP=2）
+                }
+
+                // 如果敌人 HP 归零，移除敌人
+                if (enemy[j].HP <= 0) {
+                    enemy[j] = enemy[enemyExistedCount - 1];
+                    enemyExistedCount--;
+                    j--;
+                }
+
+                break;  // 子弹已消失，跳出内层循环
+            }
+        }
+    }
 
     // 7. 检查玩家子弹与boss碰撞
     for (int i = 0;i < player.bulletExistedCount;i++) {
@@ -256,6 +305,17 @@ void updateGame()
     }
 
     // 8. 检查敌人子弹与玩家碰撞
+    for (int i = 0; i < enemyExistedCount; i++) {
+        for (int j = 0; j < enemy[i].bulletExistedCount; j++) {
+            if (areIntersecting(enemy[i].planeBullet[j], JUDGE_SCOPE, player.planeState, JUDGE_SCOPE / 2)) {
+                // 敌人子弹命中玩家
+                enemy[i].planeBullet[j] = enemy[i].planeBullet[enemy[i].bulletExistedCount - 1];
+                enemy[i].bulletExistedCount--;
+                j--;
+                player.HP--;
+            }
+        }
+    }
 
 
     // 9. 检查boss子弹与玩家碰撞
@@ -267,7 +327,19 @@ void updateGame()
             player.HP--;
         }
     }
-
+    // 10. 检查敌人子弹越界
+    for (int i = 0; i < enemyExistedCount; i++) {
+        for (int j = 0; j < enemy[i].bulletExistedCount; j++) {
+            if (enemy[i].planeBullet[j].x < -BULLET_SIZE ||
+                enemy[i].planeBullet[j].x > SCREEN_WIDTH + BULLET_SIZE ||
+                enemy[i].planeBullet[j].y < -BULLET_SIZE ||
+                enemy[i].planeBullet[j].y > SCREEN_HEIGHT + BULLET_SIZE) {
+                enemy[i].planeBullet[j] = enemy[i].planeBullet[enemy[i].bulletExistedCount - 1];
+                enemy[i].bulletExistedCount--;
+                j--;
+            }
+        }
+    }
 
     // 五. 绘制画面 
     pastePictures();

@@ -11,9 +11,9 @@
 //Windows API
 #include <Windows.h>
 #pragma comment(lib,"Winmm.lib")//链接多媒体库
+#include <mmsystem.h>
 //自定义头文件
 #include "BulletCurtainGame.h"
-
 
 //定义全局变量
 PLANE player, boss;
@@ -40,22 +40,22 @@ int main()
 {
     //一、游戏前准备阶段
     // 1. 加载游戏资源
-    loadimage(&img[0], "../图片素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    loadimage(&img[1], "../图片素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    loadimage(&img[2], "../图片素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
-    loadimage(&img[3], "../图片素材/博丽灵梦_mask.bmp", PLANE_SIZE, PLANE_SIZE);
-    loadimage(&img[4], "../图片素材/魔雨雾理沙_src.bmp", PLANE_SIZE, PLANE_SIZE);
-    loadimage(&img[5], "../图片素材/魔雨雾理沙_mask.bmp", PLANE_SIZE, PLANE_SIZE);
-    loadimage(&img[6], "../图片素材/子弹_品红_src.bmp", BULLET_SIZE, BULLET_SIZE);
-    loadimage(&img[7], "../图片素材/子弹_mask.bmp", BULLET_SIZE, BULLET_SIZE);
-    loadimage(&img[8], "../图片素材/蕾米莉亚_src.bmp", BOSS_SIZE, BOSS_SIZE);
-    loadimage(&img[9], "../图片素材/蕾米莉亚_mask.bmp", BOSS_SIZE, BOSS_SIZE);
-    loadimage(&img[10], "../图片素材/圆_红_src.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
-    loadimage(&img[11], "../图片素材/圆_mask.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
-	loadimage(&img[12], "../图片素材/结算1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    loadimage(&img[13], "../图片素材/结算2.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    loadimage(&img[14], "../图片素材/十六夜咲夜_src.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
-    loadimage(&img[15], "../图片素材/十六夜咲夜_mask.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
+    loadimage(&img[0], "../游戏素材/封面.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[1], "../游戏素材/背景1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[2], "../游戏素材/博丽灵梦_src.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[3], "../游戏素材/博丽灵梦_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[4], "../游戏素材/魔雨雾理沙_src.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[5], "../游戏素材/魔雨雾理沙_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[6], "../游戏素材/子弹_品红_src.bmp", BULLET_SIZE, BULLET_SIZE);
+    loadimage(&img[7], "../游戏素材/子弹_mask.bmp", BULLET_SIZE, BULLET_SIZE);
+    loadimage(&img[8], "../游戏素材/蕾米莉亚_src.bmp", BOSS_SIZE, BOSS_SIZE);
+    loadimage(&img[9], "../游戏素材/蕾米莉亚_mask.bmp", BOSS_SIZE, BOSS_SIZE);
+    loadimage(&img[10], "../游戏素材/圆_红_src.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
+    loadimage(&img[11], "../游戏素材/圆_mask.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
+	loadimage(&img[12], "../游戏素材/结算1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[13], "../游戏素材/结算2.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadimage(&img[14], "../游戏素材/十六夜咲夜_src.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
+    loadimage(&img[15], "../游戏素材/十六夜咲夜_mask.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
 
     // 2.初始化游戏窗口
     initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
@@ -89,7 +89,17 @@ int main()
         initGame();
         pastePictures();
         Sleep(500);
+        char bgmPath[256];
+        int bgmChoice = rand() % 2;  // 0 或 1
 
+        if (bgmChoice == 0) {
+            strcpy_s(bgmPath, sizeof(bgmPath), "../游戏素材/touhou_1.wav");
+        }
+        else {
+            strcpy_s(bgmPath, sizeof(bgmPath), "../游戏素材/touhou_2.wav");
+        }
+
+        PlaySound(bgmPath, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
         // 4.游戏阶段
         while (gameRunning) {
             // 处理游戏逻辑
@@ -98,6 +108,7 @@ int main()
             checkPlayerState();
             Sleep(REFRESH_INTERVAL);
         }
+        PlaySound(NULL, NULL, 0);
 
 		//游戏后处理阶段
         do {
@@ -203,7 +214,7 @@ void initGame()
         player.planeBullet[i] = { 0, 0, 0, 0 };
     }
     player.planeState = { SCREEN_WIDTH / 2, SCREEN_HEIGHT - PLANE_SIZE, 0, 0 };
-    player.HP = 5;  // 玩家生命值
+    player.HP = 100000;  // 玩家生命值
 
     // ----- 初始化 Boss -----
     boss.bulletExistedCount = 0;//初始化 Boss 子弹数量
@@ -293,16 +304,29 @@ void checkPlayerState()
     if (player.HP <= 0) {
         gameRunning = false;   // 结束游戏
 
-		BeginBatchDraw();
-		putimage(0, 0, &img[12]);
-        
+        BeginBatchDraw();
+        putimage(0, 0, &img[12]);
+
         RECT tipRect_1 = { 0 , SCREEN_HEIGHT / 2 - 30, SCREEN_WIDTH, SCREEN_HEIGHT };
         drawtext("你被击败，游戏结束", &tipRect_1, DT_CENTER | DT_VCENTER);
         RECT tipRect_2 = { 0 , SCREEN_HEIGHT / 2 + 30, SCREEN_WIDTH, SCREEN_HEIGHT };
-		drawtext("按 R 键重新开始，或按ESC退出程序", &tipRect_2, DT_CENTER | DT_VCENTER); 
-		EndBatchDraw();
+        drawtext("按 R 键重新开始，或按ESC退出程序", &tipRect_2, DT_CENTER | DT_VCENTER);
+        EndBatchDraw();
     }
+    if (score >= 300) {
+            gameRunning = false;   // 结束游戏
+
+            BeginBatchDraw();
+            putimage(0, 0, &img[13]); 
+
+            RECT tipRect_1 = { 0, SCREEN_HEIGHT / 2 - 30, SCREEN_WIDTH, SCREEN_HEIGHT };
+            drawtext("恭喜你获得胜利！", &tipRect_1, DT_CENTER | DT_VCENTER);
+            RECT tipRect_2 = { 0, SCREEN_HEIGHT / 2 + 30, SCREEN_WIDTH, SCREEN_HEIGHT };
+            drawtext("按 R 键重新开始，或按ESC退出程序", &tipRect_2, DT_CENTER | DT_VCENTER);
+            EndBatchDraw();
+        }
 }
+
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
 

@@ -24,8 +24,9 @@
 #define JUDGE_SCOPE 10
 
 #define REFRESH_INTERVAL 16
-
-
+#define SHOOT_DURATION 120   
+#define GAP_DURATION 60      
+#define PI 3.1415926535
 //结构体声明
 typedef struct kinestate
 {
@@ -68,9 +69,7 @@ void bossKineticModule_1();
 void bossKineticModule_2();
 void BossPattern_Ring(PLANE* plane, int bulletCount, double& angleOffset);
 void BossPattern_Flower(int bulletCount, double& angleOffset);
-void BossPattern_Random(double& ringAngle, double& flowerAngle);
+void BossPattern_MultiPetal(int petalCount, double& angleOffset);
 void enemyKineticModule1();
 void enemyKineticModule2();
 void enemyKineticModule3();
-
-
