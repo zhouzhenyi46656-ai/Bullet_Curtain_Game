@@ -15,6 +15,7 @@
 
 // 函数声明
 int areIntersecting(KINESTATE a, int aSize, KINESTATE b, int bSize);
+bool SegmentCircleIntersect(KINESTATE bullet, KINESTATE enemy, double r);
 
 
 // ========== updateGame 主函数 ==========
@@ -24,6 +25,7 @@ void updateGame()
     static ULONGLONG lastBossBulletTime = 0;
 	static ULONGLONG lastEnemyGenTime = 0;
 	static ULONGLONG lastEnemyBulletGenTime = 0;
+    static ULONGLONG lastPlayerBossHit = 0;
     static ULONGLONG now = 0;
 
     // Boss 弹幕角度偏移（用于旋转效果）
@@ -86,6 +88,7 @@ void updateGame()
 	if (now - lastEnemyGenTime > ENEMY_GEN_INTERVAL) {
 		lastEnemyGenTime = now;
 		if (enemyExistedCount < ENEMY_NUM) {
+            srand(time(NULL));
 			int type = rand() % 6; // 随机选择敌人类型
 			if (type < 3) {
 				enemyKineticModule1();
@@ -110,8 +113,8 @@ void updateGame()
             int dx = player.planeState.x - enemy[i].planeState.x,
                 dy = player.planeState.y - enemy[i].planeState.y;
             double angle = atan2(dy, dx);
-            enemy[i].planeState.x += PLAYER_SPEED * cos(angle);
-            enemy[i].planeState.y += PLAYER_SPEED * sin(angle);
+            enemy[i].planeState.x += BOSS_SPEED * cos(angle);
+            enemy[i].planeState.y += BOSS_SPEED * sin(angle);
 		}
 	}
 
@@ -195,7 +198,6 @@ void updateGame()
         }
     }
     
-    
     // 2. 检查boss子弹越界
     for (int i = 0; i < boss.bulletExistedCount; i++) {
         boss.planeBullet[i].x += boss.planeBullet[i].vx;
@@ -211,13 +213,37 @@ void updateGame()
     }
 
     // 3. 检查敌人越界
-    
-
+    for (int i = 0;i < enemyExistedCount;i++) {
+        if (enemy[i].planeState.x < -PLANE_SIZE || enemy[i].planeState.x > SCREEN_WIDTH + PLANE_SIZE ||
+            enemy[i].planeState.y < -PLANE_SIZE || enemy[i].planeState.y > SCREEN_HEIGHT + PLANE_SIZE)
+        {
+            enemy[i] = enemy[enemyExistedCount - 1];
+            enemyExistedCount--;
+            i--;
+        }
+    }
 
     // 4. 检查玩家与敌人碰撞
+    for (int i = 0;i < enemyExistedCount;i++) {
+        if (areIntersecting(player.planeState, JUDGE_SCOPE, enemy[i].planeState, JUDGE_SCOPE)) {
+            enemy[i] = enemy[enemyExistedCount - 1];
+            enemyExistedCount--;
+            i--;
+            player.HP--;
+        }
+    }
+
     // 5. 检查玩家与boss碰撞
+    now = GetTickCount();
+    if (now - lastPlayerBossHit > 2000) {
+        if (areIntersecting(player.planeState, JUDGE_SCOPE / 2, boss.planeState, JUDGE_SCOPE * 3)) {
+            player.HP--;
+        }
+    }
 
     // 6. 检查玩家子弹与敌人碰撞
+ 
+
     // 7. 检查玩家子弹与boss碰撞
     for (int i = 0;i < player.bulletExistedCount;i++) {
         if (areIntersecting(player.planeBullet[i], JUDGE_SCOPE, boss.planeState, JUDGE_SCOPE * 3)) {
@@ -230,6 +256,8 @@ void updateGame()
     }
 
     // 8. 检查敌人子弹与玩家碰撞
+
+
     // 9. 检查boss子弹与玩家碰撞
     for (int i = 0;i < boss.bulletExistedCount;i++) {
         if (areIntersecting(boss.planeBullet[i], JUDGE_SCOPE, player.planeState, JUDGE_SCOPE/2)) {

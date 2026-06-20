@@ -54,8 +54,8 @@ int main()
     loadimage(&img[11], "../图片素材/圆_mask.bmp", BOSS_BULLET_SIZE, BOSS_BULLET_SIZE);
 	loadimage(&img[12], "../图片素材/结算1.png", SCREEN_WIDTH, SCREEN_HEIGHT);
     loadimage(&img[13], "../图片素材/结算2.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    loadimage(&img[14], "../图片素材/十六夜咲夜_src.bmp", PLANE_SIZE, PLANE_SIZE);
-    loadimage(&img[15], "../图片素材/十六夜咲夜_mask.bmp", PLANE_SIZE, PLANE_SIZE);
+    loadimage(&img[14], "../图片素材/十六夜咲夜_src.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
+    loadimage(&img[15], "../图片素材/十六夜咲夜_mask.bmp", 1.5 * PLANE_SIZE, 1.5 * PLANE_SIZE);
 
     // 2.初始化游戏窗口
     initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);//打开窗口
@@ -251,7 +251,7 @@ void pastePictures()
     }
 
     // 3. 绘制敌人
-    for (int i = 0; i < ENEMY_NUM; i++) {
+    for (int i = 0; i < enemyExistedCount; i++) {
         // 只绘制存在的敌人
         if (enemy[i].HP > 0) {
             putimage(enemy[i].planeState.x - PLANE_SIZE / 2,
@@ -261,7 +261,7 @@ void pastePictures()
         }
     }
 
-    // 4. 绘制敌人子弹（此处为占位，后续实现）
+    // 4. 绘制敌人子弹
 
 
     // 5. 绘制boss

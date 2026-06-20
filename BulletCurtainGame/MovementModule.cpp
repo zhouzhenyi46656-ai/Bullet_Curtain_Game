@@ -149,9 +149,7 @@ void BossPattern_Random(double& ringAngle, double& flowerAngle)
 // 三、敌人与敌人子弹移动模块
 // 1. 从上到下移动
 void enemyKineticModule1()
-{
-    srand((unsigned)time(NULL));
-    
+{   
     double x = rand() % (SCREEN_WIDTH - PLANE_SIZE) + PLANE_SIZE / 2;
     enemy[enemyExistedCount].planeState = {x, -PLANE_SIZE, 0, BOSS_SPEED}; // 固定速度向下移动
 	enemy[enemyExistedCount].bulletExistedCount = 0;
@@ -163,9 +161,8 @@ void enemyKineticModule1()
 // 2. 从左到右移动
 void enemyKineticModule2()
 {
-	srand((unsigned)time(NULL));
 	double direction = rand() % 2 * 2 - 1;
-	double y = PLANE_SIZE / 2 - rand() % (SCREEN_HEIGHT - 3 * PLANE_SIZE);
+	double y = SCREEN_HEIGHT / 2 + 100 - rand() % 200;
 	enemy[enemyExistedCount].planeState = { SCREEN_WIDTH / 2 - (direction * (SCREEN_WIDTH / 2 + PLANE_SIZE)), y, direction * BOSS_SPEED, 0};//随机左右出现
 	enemy[enemyExistedCount].bulletExistedCount = 0;
 	enemy[enemyExistedCount].HP = 4;
@@ -176,10 +173,9 @@ void enemyKineticModule2()
 // 3.追踪玩家移动
 void enemyKineticModule3()
 {
-    srand((unsigned)time(NULL));
     //敌人出现
     double direction = rand() % 2 * 2 - 1;
-    double y = PLANE_SIZE / 2 - rand() % (SCREEN_HEIGHT - 3 * PLANE_SIZE);
+    double y = SCREEN_HEIGHT / 2 + 100 - rand() % 200;
     enemy[enemyExistedCount].planeState = { SCREEN_WIDTH / 2 - (direction * (SCREEN_WIDTH / 2 + PLANE_SIZE)), y, 0, 0 };//随机左右出现
     enemy[enemyExistedCount].bulletExistedCount = 0;
     enemy[enemyExistedCount].HP = 2;
